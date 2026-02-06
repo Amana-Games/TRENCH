@@ -398,6 +398,8 @@ public:
   void debugThrowExceptionDuringCommand();
   void debugSetWindowSize();
   void debugShowPalette();
+  
+  void rebuildGARA();
 
   void focusChange(QWidget* oldFocus, QWidget* newFocus);
 

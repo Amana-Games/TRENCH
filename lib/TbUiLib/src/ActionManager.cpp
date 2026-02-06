@@ -802,7 +802,7 @@ void ActionManager::createFileMenu()
     "Menu/File/Save",
     QObject::tr("Save Document"),
     ActionContext::Any,
-    QKeySequence::Save,
+    QKeySequence{},
     [](auto& context) { context.mapWindow().saveDocument(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
@@ -1451,7 +1451,7 @@ void ActionManager::createToolsMenu()
     "Menu/Edit/Tools/Edge Tool",
     QObject::tr("Edge Tool"),
     ActionContext::Any,
-    QKeySequence{Qt::Key_E},
+    QKeySequence{Qt::SHIFT | Qt::Key_E},
     [](auto& context) { context.mapWindow().toggleEdgeTool(); },
     [](const auto& context) {
       return context.hasDocument() && context.mapWindow().canToggleEdgeTool();
@@ -1465,7 +1465,7 @@ void ActionManager::createToolsMenu()
     "Menu/Edit/Tools/Face Tool",
     QObject::tr("Face Tool"),
     ActionContext::Any,
-    QKeySequence{Qt::Key_F},
+    QKeySequence{Qt::SHIFT | Qt::Key_F},
     [](auto& context) { context.mapWindow().toggleFaceTool(); },
     [](const auto& context) {
       return context.hasDocument() && context.mapWindow().canToggleFaceTool();
@@ -1488,6 +1488,12 @@ void ActionManager::createToolsMenu()
     std::filesystem::path{"NoTool.svg"},
   }));
 }
+
+
+// ...
+// I will target the specific toolsMenu blocks.
+
+
 
 void ActionManager::createViewMenu()
 {
@@ -1704,7 +1710,7 @@ void ActionManager::createViewMenu()
     "Menu/View/Camera/Focus on Selection",
     QObject::tr("Focus Camera on Selection"),
     ActionContext::Any,
-    QKeySequence{Qt::CTRL | Qt::Key_U},
+    QKeySequence{Qt::Key_F},
     [](auto& context) { context.mapWindow().focusCameraOnSelection(); },
     [](const auto& context) {
       return context.hasDocument() && context.mapWindow().canFocusCamera();
@@ -1840,12 +1846,13 @@ void ActionManager::createRunMenu()
 {
   auto& runMenu = createMainMenu("Run");
   runMenu.addItem(addAction(Action{
-    "Menu/Run/Compile...",
-    QObject::tr("Compile Map..."),
+    "Menu/Run/Send to Engine",
+    QObject::tr("Send Map to Godot Engine"),
     ActionContext::Any,
-    QKeySequence{},
-    [](auto& context) { context.mapWindow().showCompileDialog(); },
+    QKeySequence::Save,
+    [](auto& context) { context.mapWindow().rebuildGARA(); },
     [](const auto& context) { return context.hasDocument(); },
+    std::filesystem::path{"Play.svg"},
   }));
   runMenu.addItem(addAction(Action{
     "Menu/Run/Launch...",
@@ -1933,7 +1940,7 @@ void ActionManager::createHelpMenu()
   auto& helpMenu = createMainMenu("Help");
   helpMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Help/TrenchBroom Manual"},
-    QObject::tr("TrenchBroom Manual"),
+    QObject::tr("TRENCH Manual"),
     ActionContext::Any,
     QKeySequence{QKeySequence::HelpContents},
     [](auto& context) { context.appController().showManual(); },
@@ -1941,7 +1948,7 @@ void ActionManager::createHelpMenu()
   }));
   helpMenu.addItem(addAction(Action{
     "Menu/File/About TrenchBroom",
-    QObject::tr("About TrenchBroom"),
+    QObject::tr("About TRENCH"),
     ActionContext::Any,
     QKeySequence{},
     [](auto& context) { context.appController().showAboutDialog(); },
@@ -1973,6 +1980,7 @@ void ActionManager::createToolbar()
   m_toolBar.addItem(existingAction("Menu/Edit/Texture Lock"));
   m_toolBar.addItem(existingAction("Menu/Edit/UV Lock"));
   m_toolBar.addSeparator();
+  m_toolBar.addItem(existingAction("Menu/Run/Send to Engine"));
 }
 
 Action& ActionManager::existingAction(const std::filesystem::path& preferencePath)

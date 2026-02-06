@@ -46,6 +46,19 @@ namespace tb::ui
 std::optional<std::tuple<std::string, mdl::MapFormat>> GameDialog::showNewDocumentDialog(
   AppController& appController, QWidget* parent)
 {
+  // [AMANA GAMES] Bypass dialog and force "AINIMONIA" game
+  const auto& gameManager = appController.gameManager();
+  if (gameManager.gameInfo("AINIMONIA") != nullptr) {
+      const auto* gameInfo = gameManager.gameInfo("AINIMONIA");
+      // Default to the first format (usually Valve) or a specific one if needed
+      mdl::MapFormat format = mdl::MapFormat::Valve;
+      if (!gameInfo->gameConfig.fileFormats.empty()) {
+          format = mdl::formatFromName(gameInfo->gameConfig.fileFormats.front().format);
+      }
+      return std::tuple{"AINIMONIA", format};
+  }
+
+  // Fallback to dialog if "AINIMONIA" is missing (should not happen in production)
   auto dialog = GameDialog{
     appController,
     "Select Game",
@@ -67,10 +80,18 @@ std::optional<std::tuple<std::string, mdl::MapFormat>> GameDialog::showNewDocume
 std::optional<std::tuple<std::string, mdl::MapFormat>> GameDialog::showOpenDocumentDialog(
   AppController& appController, QWidget* parent)
 {
+  // [AMANA GAMES] Bypass dialog and force "AINIMONIA" game
+  const auto& gameManager = appController.gameManager();
+  if (gameManager.gameInfo("AINIMONIA") != nullptr) {
+       // For opening, we might want to let it autodetect map format, or force it.
+       // Usually Open dialog allows format selection, but we are locking to Godot.
+       return std::tuple{"AINIMONIA", mdl::MapFormat::Unknown};
+  }
+
   auto dialog = GameDialog{
     appController,
     "Select Game",
-    R"(TrenchBroom was unable to detect the game for the map document. Please choose a game in the game list and click OK.)",
+    R"(TRENCH was unable to detect the game for the map document. Please choose a game in the game list and click OK.)",
     GameDialog::DialogType::Open,
     parent};
 

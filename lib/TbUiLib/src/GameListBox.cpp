@@ -40,23 +40,29 @@ auto makeGameDisplayInfo(const mdl::GameInfo& gameInfo)
 {
   auto gameName = gameInfo.gameConfig.name;
 
-  auto iconPath = gameInfo.gameConfig.findConfigFile(gameInfo.gameConfig.icon);
-  if (iconPath.empty())
-  {
-    iconPath = std::filesystem::path{"DefaultGameIcon.svg"};
+  const auto gamePath = pref(gameInfo.gamePathPreference);
+  auto iconPath = gamePath / "gameicon.png";
+  if (!std::filesystem::exists(iconPath)) {
+      iconPath = gameInfo.gameConfig.findConfigFile(gameInfo.gameConfig.icon);
+      if (iconPath.empty())
+      {
+        iconPath = std::filesystem::path{"DefaultGameIcon.svg"};
+      }
   }
 
   auto title = QString::fromStdString(
     gameInfo.gameConfig.name
     + (gameInfo.gameConfig.experimental ? " (experimental)" : ""));
 
-  const auto gamePath = pref(gameInfo.gamePathPreference);
   auto subTitle = QString::fromStdString(
     gamePath.empty() ? std::string("Game not found") : gamePath.string());
 
+  // [AMANA GAMES] Scale icon to a consistent size.
+  auto iconPixmap = loadPixmap(iconPath).scaled(32, 32, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
   return GameDisplayInfo{
     std::move(gameName),
-    loadPixmap(iconPath),
+    std::move(iconPixmap),
     std::move(title),
     std::move(subTitle),
   };

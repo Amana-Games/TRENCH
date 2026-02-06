@@ -38,11 +38,6 @@ namespace tb
 {
 class Logger;
 
-namespace gl
-{
-class ResourceManager;
-}
-
 namespace mdl
 {
 class Map;
@@ -70,7 +65,6 @@ class MapFixture
 {
 private:
   std::unique_ptr<kdl::task_manager> m_taskManager;
-  std::unique_ptr<gl::ResourceManager> m_resourceManager;
   std::unique_ptr<Logger> m_logger;
   std::unique_ptr<Map> m_map;
 

@@ -129,8 +129,6 @@ QWidget* ViewPreferencePane::createViewPreferences()
 
   auto* viewLayoutLayout = new QHBoxLayout{};
   viewLayoutLayout->addWidget(m_layoutCombo);
-  viewLayoutLayout->addSpacing(LayoutConstants::NarrowHMargin);
-  viewLayoutLayout->addWidget(m_link2dCameras);
   viewLayoutLayout->setContentsMargins(0, 0, 0, 0);
 
   m_brightnessSlider = new SliderWithLabel{brightnessToUI(0.0f), brightnessToUI(2.0f)};

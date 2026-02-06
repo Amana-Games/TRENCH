@@ -21,6 +21,7 @@
 
 #include "ui/PreferencePane.h"
 
+class QLabel;
 class QLineEdit;
 class QPushButton;
 class QStackedWidget;
@@ -50,6 +51,7 @@ private:
   AppController& m_appController;
   MapDocument* m_document = nullptr;
   GameListBox* m_gameListBox = nullptr;
+  QLabel* m_largeIconLabel = nullptr;
   QStackedWidget* m_stackedWidget = nullptr;
   QWidget* m_defaultPage = nullptr;
   GamePreferencePane* m_currentGamePage = nullptr;

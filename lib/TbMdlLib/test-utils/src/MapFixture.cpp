@@ -21,7 +21,6 @@
 
 #include "Logger.h"
 #include "gl/Resource.h"
-#include "gl/ResourceManager.h"
 #include "mdl/Map.h"
 #include "mdl/TestUtils.h"
 
@@ -32,7 +31,6 @@ namespace tb::mdl
 
 MapFixture::MapFixture()
   : m_taskManager{createTestTaskManager()}
-  , m_resourceManager{std::make_unique<gl::ResourceManager>()}
   , m_logger{std::make_unique<NullLogger>()}
 {
 }
@@ -53,7 +51,6 @@ Map& MapFixture::create(MapFixtureConfig config)
       mapFormat,
       vm::bbox3d{8129.0},
       *m_taskManager,
-      *m_resourceManager,
       *m_logger)
     | kdl::transform([&](auto map) {
         m_map = std::move(map);
@@ -81,7 +78,6 @@ Map& MapFixture::load(const std::filesystem::path& path, MapFixtureConfig config
       vm::bbox3d{8129.0},
       absPath,
       *m_taskManager,
-      *m_resourceManager,
       *m_logger)
     | kdl::transform([&](auto map) {
         m_map = std::move(map);

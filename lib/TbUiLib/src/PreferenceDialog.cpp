@@ -54,9 +54,8 @@ enum class PreferenceDialog::PrefPane
   Colors = 2,
   Mouse = 3,
   Keyboard = 4,
-  Update = 5,
-  Last = 5
-} PrefPane;
+  Last = 4
+};
 
 
 PreferenceDialog::PreferenceDialog(
@@ -105,13 +104,11 @@ void PreferenceDialog::createGui()
   m_toolBar->setFloatable(false);
   m_toolBar->setMovable(false);
   m_toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-  m_toolBar->addAction(gamesImage, "Games", [&]() { switchToPane(PrefPane::Games); });
+  m_toolBar->addAction(gamesImage, "Game Config", [&]() { switchToPane(PrefPane::Games); });
   m_toolBar->addAction(viewImage, "View", [&]() { switchToPane(PrefPane::View); });
   m_toolBar->addAction(colorsImage, "Colors", [&]() { switchToPane(PrefPane::Colors); });
   m_toolBar->addAction(mouseImage, "Mouse", [&]() { switchToPane(PrefPane::Mouse); });
-  m_toolBar->addAction(
-    keyboardImage, "Keyboard", [&]() { switchToPane(PrefPane::Keyboard); });
-  m_toolBar->addAction(updateImage, "Update", [&]() { switchToPane(PrefPane::Update); });
+  m_toolBar->addAction(keyboardImage, "Keyboard", [&]() { switchToPane(PrefPane::Keyboard); });
 
   // Don't display tooltips for pane switcher buttons...
   for (auto* button : m_toolBar->findChildren<QToolButton*>())
@@ -125,7 +122,6 @@ void PreferenceDialog::createGui()
   m_stackedWidget->addWidget(new ColorsPreferencePane{});
   m_stackedWidget->addWidget(new MousePreferencePane{});
   m_stackedWidget->addWidget(new KeyboardPreferencePane{m_appController, m_document});
-  m_stackedWidget->addWidget(new UpdatePreferencePane{m_appController});
 
   m_buttonBox = new QDialogButtonBox{
     QDialogButtonBox::RestoreDefaults

@@ -36,6 +36,8 @@
 #include <QTimer>
 #include <QToolBar>
 #include <QVBoxLayout>
+#include <QUdpSocket>
+#include <QHostAddress>
 #include <QtGlobal>
 
 #include "PreferenceManager.h"
@@ -290,7 +292,7 @@ void MapWindow::updateTitle()
 {
   const auto& map = m_document->map();
   setWindowModified(map.modified());
-  setWindowTitle(tr("%1[*] - TrenchBroom").arg(pathAsQString(map.filename())));
+  setWindowTitle(tr("%1[*] - TRENCH").arg(pathAsQString(map.filename())));
   setWindowFilePath(pathAsQPath(map.path()));
 }
 
@@ -794,6 +796,47 @@ void MapWindow::connectObservers()
   m_notifierConnection +=
     m_mapView->mapViewToolBox().toolHandleSelectionChangedNotifier.connect(
       this, &MapWindow::toolHandleSelectionChanged);
+}
+
+void MapWindow::rebuildGARA()
+{
+  if (saveDocument()) // Save first
+  {
+    const auto& map = m_document->map();
+    const auto mapName = map.path().filename().string();
+    
+    // Mission 13: Get camera data from the current view
+    auto* view = currentMapViewBase();
+    QString cameraData = "";
+    if (view)
+    {
+      const auto& cam = view->camera();
+      const auto pos = cam.position();
+      const auto dir = cam.direction();
+      const auto up = cam.up();
+      
+      cameraData = QString(" %1 %2 %3 %4 %5 %6 %7 %8 %9")
+        .arg(pos.x()).arg(pos.y()).arg(pos.z())
+        .arg(dir.x()).arg(dir.y()).arg(dir.z())
+        .arg(up.x()).arg(up.y()).arg(up.z());
+    }
+
+    QUdpSocket socket;
+    QByteArray data = ("rebuild" + cameraData).toUtf8();
+    
+    socket.writeDatagram(data, QHostAddress("127.0.0.1"), 7777); // Godot Editor
+    socket.writeDatagram(data, QHostAddress("127.0.0.1"), 7778); // Godot Game
+    
+    // Log and Status feedback
+    logger().info() << "Map '" << mapName << "' sent to Godot (Ports 7777/7778). payload: " << data.constData();
+    
+    if (m_statusBarLabel)
+    {
+      m_statusBarLabel->setText("Synced with Godot Engine");
+    }
+    
+    updateStatusBarDelayed();
+  }
 }
 
 void MapWindow::documentWasLoaded()

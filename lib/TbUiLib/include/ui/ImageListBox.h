@@ -38,7 +38,11 @@ private:
 
 public:
   ImageListBoxItemRenderer(
-    const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent);
+    const QString& title,
+    const QString& subtitle,
+    const QPixmap& image,
+    float fontScale,
+    QWidget* parent);
   void updateItem() override;
 };
 
@@ -51,6 +55,12 @@ public:
 
 private:
   ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
+
+public:
+  void setFontScale(float scale);
+
+private:
+  float m_fontScale = 1.0f;
 
 private:
   friend class ImageListBoxItemRenderer;

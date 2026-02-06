@@ -62,7 +62,7 @@ std::filesystem::path userDataDirectory()
   }
 #if defined __linux__ || defined __FreeBSD__
   // Compatibility with wxWidgets
-  return pathFromQString(QDir::homePath()) / ".TrenchBroom";
+  return pathFromQString(QDir::homePath()) / ".DLE";
 #else
   return pathFromQString(
     QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
@@ -81,7 +81,7 @@ std::filesystem::path tempDirectory()
 
 std::filesystem::path logFilePath()
 {
-  return userDataDirectory() / "TrenchBroom.log";
+  return userDataDirectory() / "DLE.log";
 }
 
 std::filesystem::path preferenceFilePath()
@@ -122,29 +122,8 @@ std::filesystem::path findResourceFile(const std::filesystem::path& file)
 std::vector<std::filesystem::path> findResourceDirectories(
   const std::filesystem::path& directory)
 {
-  auto result = std::vector<std::filesystem::path>{
-    // Special case for running debug builds on Linux
-    appDirectory() / directory,
-    // Compatibility with wxWidgets
-    userDataDirectory() / directory,
-    // Compatibility with AppImage
-    appImageDirectory() / directory,
-  };
-
-  const auto dirs = QStandardPaths::locateAll(
-    QStandardPaths::AppDataLocation,
-    pathAsQPath(directory),
-    QStandardPaths::LocateOption::LocateDirectory);
-
-  for (const auto& dir : dirs)
-  {
-    const auto path = pathFromQString(dir);
-    if (std::ranges::find(result, path) == result.end())
-    {
-      result.push_back(path);
-    }
-  }
-  return result;
+  // [AMANA GAMES] Force resources (games, etc.) to be relative to the executable only.
+  return { appDirectory() / directory };
 }
 
 bool portableState = false;

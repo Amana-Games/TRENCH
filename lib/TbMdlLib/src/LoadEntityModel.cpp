@@ -50,8 +50,15 @@ namespace
 auto loadPalette(const fs::FileSystem& fs, const MaterialConfig& materialConfig)
 {
   const auto& path = materialConfig.palette;
+  if (path.empty())
+  {
+    return Result<std::optional<Palette>>{std::nullopt};
+  }
+
   return fs.openFile(path)
-         | kdl::and_then([&](auto file) { return mdl::loadPalette(*file, path); });
+         | kdl::and_then([&](auto file) {
+             return mdl::loadPalette(*file, path).transform([](auto p) { return std::optional{std::move(p)}; });
+           });
 }
 
 Result<EntityModelData> loadEntityModelData(
@@ -68,25 +75,29 @@ Result<EntityModelData> loadEntityModelData(
            if (canLoadMdlModel(path, reader))
            {
              return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                      return loadMdlModel(modelName, reader, palette, logger);
+                      if (!palette) { return Result<EntityModelData>{Error{"Model requires a palette, but none is configured"}}; }
+                      return loadMdlModel(modelName, reader, *palette, logger);
                     });
            }
            if (canLoadMd2Model(path, reader))
            {
              return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                      return loadMd2Model(modelName, reader, palette, fs, logger);
+                      if (!palette) { return Result<EntityModelData>{Error{"Model requires a palette, but none is configured"}}; }
+                      return loadMd2Model(modelName, reader, *palette, fs, logger);
                     });
            }
            if (canLoadBspModel(path, reader))
            {
              return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                      return loadBspModel(modelName, reader, palette, fs, logger);
+                      if (!palette) { return Result<EntityModelData>{Error{"Model requires a palette, but none is configured"}}; }
+                      return loadBspModel(modelName, reader, *palette, fs, logger);
                     });
            }
            if (canLoadSpriteModel(path, reader))
            {
              return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                      return loadSpriteModel(modelName, reader, palette, logger);
+                      if (!palette) { return Result<EntityModelData>{Error{"Model requires a palette, but none is configured"}}; }
+                      return loadSpriteModel(modelName, reader, *palette, logger);
                     });
            }
            if (canLoadMd3Model(path, reader))

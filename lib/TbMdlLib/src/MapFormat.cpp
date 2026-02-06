@@ -33,6 +33,10 @@ MapFormat formatFromName(const std::string& formatName)
   {
     return MapFormat::Standard;
   }
+  if (formatName == "AINIMONIAMap")
+  {
+    return MapFormat::Valve; // AINIMONIAuses Valve format
+  }
   if (formatName == "Quake2")
   {
     return MapFormat::Quake2;

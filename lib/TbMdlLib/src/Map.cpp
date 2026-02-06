@@ -260,11 +260,19 @@ void setWorldDefaultProperties(
 
 auto findEntityDefinitionFile(
   const GameConfig& gameConfig,
+  const std::filesystem::path& /*gamePath*/,
   const EntityDefinitionFileSpec& spec,
   const std::vector<std::filesystem::path>& searchPaths)
 {
   if (spec.type == EntityDefinitionFileSpec::Type::Builtin)
   {
+    // [AMANA GAMES] Search for exposed asset in the editor's own games folder.
+    // SystemPaths is in TbUiLib, we are in TbMdlLib. We can use gameConfig.path to get the config location.
+    // gameConfig.path typically points to resources/games/AINIMONIA/GameConfig.cfg
+    const auto gameDirFile = gameConfig.path.parent_path() / spec.path;
+    if (fs::Disk::pathInfo(gameDirFile) == fs::PathInfo::File) {
+        return gameDirFile;
+    }
     return gameConfig.findConfigFile(spec.path);
   }
 
@@ -495,7 +503,6 @@ Map::Map(
   std::unique_ptr<WorldNode> worldNode,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager,
-  gl::ResourceManager& resourceManager,
   Logger& logger)
   : Map{
       environmentConfig,
@@ -505,7 +512,6 @@ Map::Map(
       worldBounds,
       DefaultDocumentName,
       taskManager,
-      resourceManager,
       logger}
 {
   setWorldDefaultProperties(*m_worldNode, *m_entityDefinitionManager);
@@ -519,7 +525,6 @@ Map::Map(
   const vm::bbox3d& worldBounds,
   std::filesystem::path path,
   kdl::task_manager& taskManager,
-  gl::ResourceManager& resourceManager,
   Logger& logger)
   : m_environmentConfig{environmentConfig}
   , m_gameInfo{gameInfo}
@@ -527,13 +532,13 @@ Map::Map(
   , m_gameFileSystem{createGameFileSystem(
       m_environmentConfig, m_gameInfo, m_gamePath, logger)}
   , m_taskManager{taskManager}
-  , m_resourceManager{resourceManager}
   , m_logger{logger}
+  , m_resourceManager{std::make_unique<gl::ResourceManager>()}
   , m_entityDefinitionManager{std::make_unique<EntityDefinitionManager>()}
   , m_entityModelManager{std::make_unique<EntityModelManager>(
       m_gameInfo,
       *m_gameFileSystem,
-      makeCreateResource<EntityModelDataResource>(m_resourceManager),
+      makeCreateResource<EntityModelDataResource>(*m_resourceManager),
       logger)}
   , m_materialManager{std::make_unique<gl::MaterialManager>(logger)}
   , m_tagManager{std::make_unique<TagManager>()}
@@ -576,7 +581,6 @@ Result<std::unique_ptr<Map>> Map::createMap(
   MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager,
-  gl::ResourceManager& resourceManager,
   Logger& logger)
 {
   logger.info() << "Creating new document";
@@ -590,7 +594,6 @@ Result<std::unique_ptr<Map>> Map::createMap(
                std::move(worldNode),
                worldBounds,
                taskManager,
-               resourceManager,
                logger);
            });
 }
@@ -603,7 +606,6 @@ Result<std::unique_ptr<Map>> Map::loadMap(
   const vm::bbox3d& worldBounds,
   std::filesystem::path path,
   kdl::task_manager& taskManager,
-  gl::ResourceManager& resourceManager,
   Logger& logger)
 {
   if (!path.is_absolute())
@@ -624,7 +626,6 @@ Result<std::unique_ptr<Map>> Map::loadMap(
                worldBounds,
                std::move(path),
                taskManager,
-               resourceManager,
                logger);
            });
 }
@@ -824,7 +825,6 @@ Result<std::unique_ptr<Map>> Map::reload()
     m_worldBounds,
     m_path,
     taskManager(),
-    m_resourceManager,
     logger());
 }
 
@@ -1147,7 +1147,7 @@ void Map::loadEntityDefinitions()
     const auto& gameConfig = gameInfo().gameConfig;
 
     const auto path =
-      findEntityDefinitionFile(gameConfig, *spec, externalSearchPaths(*this));
+      findEntityDefinitionFile(gameConfig, gamePath(), *spec, externalSearchPaths(*this));
     const auto& defaultColor = gameConfig.entityConfig.defaultColor;
     auto status = SimpleParserStatus{logger()};
 
@@ -1215,7 +1215,7 @@ void Map::loadMaterials()
   loadMaterialCollections(
     *m_gameFileSystem,
     gameInfo().gameConfig.materialConfig,
-    makeCreateResource<gl::TextureResource>(m_resourceManager),
+    makeCreateResource<gl::TextureResource>(*m_resourceManager),
     taskManager(),
     m_logger)
     | kdl::transform([&](auto materialCollections) {
@@ -1418,9 +1418,9 @@ void Map::removeEntityLinks(const std::vector<Node*>& nodes, const bool recurse)
 void Map::processResourcesSync(const gl::ProcessContext& processContext)
 {
   auto allProcessedResourceIds = std::vector<gl::ResourceId>{};
-  while (m_resourceManager.needsProcessing())
+  while (m_resourceManager->needsProcessing())
   {
-    auto processedResourceIds = m_resourceManager.process(
+    auto processedResourceIds = m_resourceManager->process(
       [](auto task) {
         auto promise = std::promise<std::unique_ptr<gl::TaskResult>>{};
         promise.set_value(task());
@@ -1443,7 +1443,7 @@ void Map::processResourcesAsync(const gl::ProcessContext& processContext)
 {
   using namespace std::chrono_literals;
 
-  const auto processedResourceIds = m_resourceManager.process(
+  const auto processedResourceIds = m_resourceManager->process(
     [&](auto task) { return taskManager().run_task(std::move(task)); },
     processContext,
     20ms);
@@ -1456,7 +1456,7 @@ void Map::processResourcesAsync(const gl::ProcessContext& processContext)
 
 bool Map::needsResourceProcessing() const
 {
-  return m_resourceManager.needsProcessing();
+  return m_resourceManager->needsProcessing();
 }
 
 bool Map::canUndoCommand() const

@@ -26,6 +26,7 @@
 #include "ui/ImageUtils.h"
 
 #include <filesystem>
+#include "PreferenceManager.h"
 
 namespace tb::ui
 {
@@ -33,13 +34,18 @@ namespace tb::ui
 CurrentGameIndicator::CurrentGameIndicator(const mdl::GameInfo& gameInfo, QWidget* parent)
   : DialogHeader{parent}
 {
-  auto iconPath = gameInfo.gameConfig.findConfigFile(gameInfo.gameConfig.icon);
-  if (iconPath.empty())
-  {
-    iconPath = std::filesystem::path{"DefaultGameIcon.svg"};
+  const auto gamePath = pref(gameInfo.gamePathPreference);
+  auto iconPath = gamePath / "gameicon.png";
+  if (!std::filesystem::exists(iconPath)) {
+      iconPath = gameInfo.gameConfig.findConfigFile(gameInfo.gameConfig.icon);
+      if (iconPath.empty())
+      {
+        iconPath = std::filesystem::path{"DefaultGameIcon.svg"};
+      }
   }
 
-  const auto gameIcon = loadPixmap(iconPath);
+  // [AMANA GAMES] Scale icon to a consistent size.
+  const auto gameIcon = loadPixmap(iconPath).scaled(48, 48, Qt::KeepAspectRatio, Qt::SmoothTransformation);
   set(QString::fromStdString(gameInfo.gameConfig.name), gameIcon);
 }
 

@@ -46,11 +46,12 @@ WelcomeWindow::WelcomeWindow(AppController& appController)
 void WelcomeWindow::createGui()
 {
   setWindowIconTB(this);
-  setWindowTitle("Welcome to TrenchBroom");
+  setWindowTitle("TRENCH");
 
   m_recentDocumentListBox = new RecentDocumentListBox{m_appController.recentDocuments()};
   m_recentDocumentListBox->setToolTip("Double click on a file to open it");
   m_recentDocumentListBox->setFixedWidth(300);
+  m_recentDocumentListBox->setFontScale(1.3f);
   m_recentDocumentListBox->setSizePolicy(
     QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
@@ -81,7 +82,7 @@ void WelcomeWindow::createGui()
   container->setLayout(outerLayout);
 
   setCentralWidget(container);
-  setFixedSize(700, 500);
+  setFixedSize(800, 650);
 }
 
 QWidget* WelcomeWindow::createAppPanel()

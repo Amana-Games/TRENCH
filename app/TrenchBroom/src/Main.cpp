@@ -304,11 +304,11 @@ int main(int argc, char* argv[])
   }
 
   // Needs to be set before creating the preference manager
-  QApplication::setApplicationName("TrenchBroom");
+  QApplication::setApplicationName("TRENCH");
   // Needs to be "" otherwise Qt adds this to the paths returned by QStandardPaths
   // which would cause preferences to move from where they were with wx
   QApplication::setOrganizationName("");
-  QApplication::setOrganizationDomain("io.github.trenchbroom");
+  QApplication::setOrganizationDomain("com.amanagames.TRENCH");
 
   // PreferenceManager is destroyed by TrenchBroomApp::~TrenchBroomApp()
   PreferenceManager::createInstance(
@@ -328,8 +328,9 @@ int main(int argc, char* argv[])
   installFileEventFilter(*appController);
 #endif
 
-  appController->askForAutoUpdates();
-  appController->triggerAutoUpdateCheck();
+  // [AMANA GAMES] Auto-updates disabled
+  // appController->askForAutoUpdates();
+  // appController->triggerAutoUpdateCheck();
 
   if (!parseCommandLineAndOpenFiles(*appController))
   {

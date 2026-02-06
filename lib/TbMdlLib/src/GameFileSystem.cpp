@@ -98,6 +98,8 @@ void GameFileSystem::addGameFileSystems(
   Logger& logger)
 {
   const auto& fileSystemConfig = config.fileSystemConfig;
+  // [AMANA GAMES] Always mount the root game path as well for editor assets.
+  addFileSystemPath(gamePath, logger);
   addSearchPath(config, gamePath, fileSystemConfig.searchPath, logger);
 
   for (const auto& searchPath : additionalSearchPaths)

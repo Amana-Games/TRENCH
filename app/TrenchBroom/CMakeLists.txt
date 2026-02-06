@@ -220,6 +220,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     # Make executable name conventional lowercase on linux
     string(TOLOWER TrenchBroom APP_TARGET_NAME_LOWER)
     set_target_properties(TrenchBroom PROPERTIES OUTPUT_NAME ${APP_TARGET_NAME_LOWER})
+else()
+    set_target_properties(TrenchBroom PROPERTIES OUTPUT_NAME "TRENCH")
 endif()
 
 # Set up the resources and DLLs for the executable
@@ -283,7 +285,7 @@ endif()
 # Common CPack configuration
 set(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${GIT_DESCRIBE}-${CMAKE_BUILD_TYPE}")
 set(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TrenchBroom Level Editor")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TRENCH")
 set(CPACK_PACKAGE_VENDOR "TrenchBroom")
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     # We want stack trace symbols even in our release builds, so don't strip

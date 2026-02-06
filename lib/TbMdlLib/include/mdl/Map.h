@@ -105,9 +105,9 @@ private:
   std::unique_ptr<GameFileSystem> m_gameFileSystem;
 
   kdl::task_manager& m_taskManager;
-  gl::ResourceManager& m_resourceManager;
   Logger& m_logger;
 
+  std::unique_ptr<gl::ResourceManager> m_resourceManager;
   std::unique_ptr<EntityDefinitionManager> m_entityDefinitionManager;
   std::unique_ptr<EntityModelManager> m_entityModelManager;
   std::unique_ptr<gl::MaterialManager> m_materialManager;
@@ -195,7 +195,6 @@ public: // misc
     std::unique_ptr<WorldNode> worldNode,
     const vm::bbox3d& worldBounds,
     kdl::task_manager& taskManager,
-    gl::ResourceManager& resourceManager,
     Logger& logger);
 
   Map(
@@ -206,7 +205,6 @@ public: // misc
     const vm::bbox3d& worldBounds,
     std::filesystem::path path,
     kdl::task_manager& taskManager,
-    gl::ResourceManager& resourceManager,
     Logger& logger);
 
   ~Map();
@@ -218,7 +216,6 @@ public: // misc
     MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
     kdl::task_manager& taskManager,
-    gl::ResourceManager& resourceManager,
     Logger& logger);
 
   static Result<std::unique_ptr<Map>> loadMap(
@@ -229,7 +226,6 @@ public: // misc
     const vm::bbox3d& worldBounds,
     std::filesystem::path path,
     kdl::task_manager& taskManager,
-    gl::ResourceManager& resourceManager,
     Logger& logger);
 
   Logger& logger();

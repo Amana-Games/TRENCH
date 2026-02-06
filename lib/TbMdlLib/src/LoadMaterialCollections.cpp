@@ -286,6 +286,7 @@ Result<gl::Material> loadTextureMaterial(
   const std::optional<Palette>& palette)
 {
   const auto prefixLength = kdl::path_length(materialConfig.root);
+  // [AMANA GAMES] If no extensions are defined, allow all files.
   const auto pathMatcher = !materialConfig.extensions.empty()
                              ? fs::makeExtensionPathMatcher(materialConfig.extensions)
                              : fs::matchAnyPath;

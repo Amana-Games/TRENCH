@@ -19,6 +19,7 @@
 
 #include "ui/GamesPreferencePane.h"
 
+#include <QLabel>
 #include <QAction>
 #include <QBoxLayout>
 #include <QDesktopServices>
@@ -33,6 +34,7 @@
 
 #include "PreferenceManager.h"
 #include "fs/DiskIO.h"
+#include "fs/PathInfo.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameManager.h"
 #include "ui/AppController.h"
@@ -77,20 +79,16 @@ void GamesPreferencePane::createGui()
   m_stackedWidget = new QStackedWidget{};
   m_stackedWidget->addWidget(m_defaultPage);
 
-  auto* showUserConfigDirButton =
-    createBitmapButton("Folder.svg", tr("Open custom game configurations folder"));
-  connect(
-    showUserConfigDirButton,
-    &QAbstractButton::clicked,
-    this,
-    &GamesPreferencePane::showUserConfigDirClicked);
+  m_largeIconLabel = new QLabel{};
+  m_largeIconLabel->setFixedSize(128, 128);
+  m_largeIconLabel->setAlignment(Qt::AlignCenter);
 
-  auto* buttonLayout = createMiniToolBarLayout(showUserConfigDirButton);
-
-  auto* glbLayout = new QVBoxLayout{};
-  glbLayout->addWidget(m_gameListBox);
-  glbLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
-  glbLayout->addLayout(buttonLayout);
+  auto* glbContainer = new QWidget{};
+  glbContainer->setFixedWidth(200);
+  auto* glbLayout = new QVBoxLayout{glbContainer};
+  glbLayout->addSpacing(20);
+  glbLayout->addWidget(m_largeIconLabel, 0, Qt::AlignHCenter);
+  glbLayout->addStretch();
 
   auto* stwLayout = new QVBoxLayout{};
   stwLayout->setContentsMargins(
@@ -106,7 +104,7 @@ void GamesPreferencePane::createGui()
   layout->setSpacing(0);
   setLayout(layout);
 
-  layout->addLayout(glbLayout);
+  layout->addWidget(glbContainer);
   layout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
   layout->addSpacing(LayoutConstants::MediumVMargin);
   layout->addLayout(stwLayout, 1);
@@ -149,6 +147,17 @@ void GamesPreferencePane::updateControls()
 
   if (const auto* selectedGameInfo = m_gameListBox->selectedGameInfo())
   {
+    // [AMANA GAMES] Update the large icon label
+    auto gamePath = PreferenceManager::instance().getPendingValue(selectedGameInfo->gamePathPreference);
+    auto iconPath = std::filesystem::path{pathAsQString(gamePath).toStdString()} / "gameicon.png";
+    if (fs::Disk::pathInfo(iconPath) != fs::PathInfo::File) {
+        iconPath = selectedGameInfo->gameConfig.findConfigFile("gameicon.png");
+    }
+    if (fs::Disk::pathInfo(iconPath) != fs::PathInfo::File) {
+        iconPath = std::filesystem::path{"DefaultGameIcon.svg"};
+    }
+    m_largeIconLabel->setPixmap(loadPixmap(iconPath).scaled(128, 128, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
     if (m_currentGamePage && &m_currentGamePage->gameInfo() == selectedGameInfo)
     {
       // refresh the current page
@@ -174,6 +183,7 @@ void GamesPreferencePane::updateControls()
   else
   {
     m_stackedWidget->setCurrentWidget(m_defaultPage);
+    m_largeIconLabel->setPixmap(QPixmap{});
   }
 }
 
@@ -251,54 +261,10 @@ void GamePreferencePane::createGui()
 
   layout->addSection(QString::fromStdString(m_gameInfo.gameConfig.name));
   layout->addRow(tr("Game Path"), gamePathLayout);
-  layout->addRow("", configureEnginesButton);
+  // [AMANA GAMES] Engines are not manageable in this editor.
+  // layout->addRow("", configureEnginesButton);
 
-  layout->addSection(tr("Compilation Tools"));
 
-  auto& prefs = PreferenceManager::instance();
-  for (const auto& tool : m_gameInfo.gameConfig.compilationTools)
-  {
-    const auto toolName = tool.name;
-    auto& toolPathPref = tool.pathPreference;
-
-    auto* edit = new QLineEdit{};
-    edit->setText(pathAsQString(prefs.getPendingValue(tool.pathPreference)));
-    if (tool.description)
-    {
-      edit->setToolTip(QString::fromStdString(*tool.description));
-    }
-    connect(edit, &QLineEdit::editingFinished, this, [&prefs, &toolPathPref, edit]() {
-      prefs.set(toolPathPref, pathFromQString(edit->text()));
-    });
-
-    m_toolPathEditors.emplace_back(&tool, edit);
-
-    auto* browseButton = new QPushButton{"..."};
-    connect(
-      browseButton,
-      &QPushButton::clicked,
-      this,
-      [this, &prefs, &toolPathPref, toolName, edit]() {
-        const auto pathStr = QFileDialog::getOpenFileName(
-          this,
-          tr("%1 Path").arg(QString::fromStdString(toolName)),
-          fileDialogDefaultDirectory(FileDialogDir::CompileTool));
-        if (!pathStr.isEmpty())
-        {
-          edit->setText(pathStr);
-          prefs.set(toolPathPref, pathFromQString(edit->text()));
-          emit requestUpdate();
-        }
-      });
-
-    auto* rowLayout = new QHBoxLayout{};
-    rowLayout->setContentsMargins(QMargins{});
-    rowLayout->setSpacing(LayoutConstants::MediumHMargin);
-    rowLayout->addWidget(edit, 1);
-    rowLayout->addWidget(browseButton);
-
-    layout->addRow(QString::fromStdString(tool.name), rowLayout);
-  }
 
   setLayout(layout);
 }

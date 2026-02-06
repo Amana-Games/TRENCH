@@ -31,8 +31,12 @@
 #include "ui/ClickableLabel.h"
 #include "ui/GetVersion.h"
 #include "ui/ImageUtils.h"
+#include "ui/QPathUtils.h"
 #include "ui/QStyleUtils.h"
 #include "ui/ViewConstants.h"
+#include "PreferenceManager.h"
+#include "mdl/GameInfo.h"
+#include "mdl/GameManager.h"
 #include "update/Updater.h"
 
 namespace tb::ui
@@ -42,14 +46,19 @@ AppInfoPanel::AppInfoPanel(AppController& appController, QWidget* parent)
   : QWidget{parent}
 {
   auto appIconImage = loadPixmap("AppIcon.png");
+  if (appIconImage.width() > 256 || appIconImage.height() > 256)
+  {
+    appIconImage = appIconImage.scaled(
+      256, 256, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  }
   auto* appIcon = new QLabel{};
   appIcon->setPixmap(appIconImage);
 
-  auto* appName = new QLabel{tr("TrenchBroom")};
+  auto* appName = new QLabel{tr("TRENCH")};
   setHeaderStyle(appName);
 
   auto* appLine = new BorderLine{};
-  auto* appClaim = new QLabel{tr("Level Editor")};
+  auto* appClaim = new QLabel{tr("")};
 
   auto version = new ClickableLabel{tr("Version %1").arg(getBuildVersion())};
   auto build = new ClickableLabel{tr("Build %1").arg(getBuildIdStr())};
@@ -61,6 +70,33 @@ AppInfoPanel::AppInfoPanel(AppController& appController, QWidget* parent)
   setInfoStyle(qtVersion);
   build->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 
+  // TRENCH specific info
+  auto* greeting = new QLabel{tr("AMANA GAMES")};
+  setHeaderStyle(greeting);
+  greeting->setAlignment(Qt::AlignCenter);
+
+  auto* credits = new QLabel{tr("TRENCH - by Turk0w & Atlas")};
+  setInfoStyle(credits); // Using info style for a more discreet look
+  auto creditsFont = credits->font();
+  creditsFont.setBold(true);
+  creditsFont.setPointSize(creditsFont.pointSize() - 1);
+  credits->setFont(creditsFont);
+  credits->setAlignment(Qt::AlignCenter);
+
+  auto* gamePathLabel = new QLabel{};
+  auto& gameManager = appController.gameManager();
+  const auto* gInfo = gameManager.gameInfo("AINIMONIA");
+  if (gInfo)
+  {
+    auto& prefs = PreferenceManager::instance();
+    auto gPath = prefs.get(gInfo->gamePathPreference);
+    QString pathStr = pathAsQString(gPath);
+    if (pathStr.isEmpty()) pathStr = tr("Not configured");
+    gamePathLabel->setText(tr("Game Path: %1").arg(pathStr));
+  }
+  setInfoStyle(gamePathLabel);
+  gamePathLabel->setAlignment(Qt::AlignCenter);
+
   const auto tooltip = tr("Click to copy to clipboard");
   version->setToolTip(tooltip);
   build->setToolTip(tooltip);
@@ -70,29 +106,31 @@ AppInfoPanel::AppInfoPanel(AppController& appController, QWidget* parent)
   connect(build, &ClickableLabel::clicked, this, &AppInfoPanel::versionInfoClicked);
   connect(qtVersion, &ClickableLabel::clicked, this, &AppInfoPanel::versionInfoClicked);
 
-  auto* updateIndicator = appController.updater().createUpdateIndicator();
-  setInfoStyle(updateIndicator);
-
   auto* versionLayout = new QHBoxLayout{};
   versionLayout->setContentsMargins(0, 0, 0, 0);
   versionLayout->setSpacing(LayoutConstants::MediumHMargin);
   versionLayout->addWidget(version);
-  versionLayout->addWidget(updateIndicator);
 
   auto* versionWidget = new QWidget{};
   versionWidget->setLayout(versionLayout);
 
   auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(20, 20, 20, 20);
-  layout->setSpacing(2);
+  layout->setSpacing(8);
   layout->addStretch();
+  layout->addWidget(greeting, 0, Qt::AlignHCenter);
+  layout->addSpacing(10);
   layout->addWidget(appIcon, 0, Qt::AlignHCenter);
   layout->addWidget(appName, 0, Qt::AlignHCenter);
   layout->addWidget(appLine);
   layout->addWidget(appClaim, 0, Qt::AlignHCenter);
+  layout->addWidget(gamePathLabel, 0, Qt::AlignHCenter);
+  layout->addSpacing(10);
   layout->addWidget(versionWidget, 0, Qt::AlignHCenter);
   layout->addWidget(build, 0, Qt::AlignHCenter);
   layout->addWidget(qtVersion, 0, Qt::AlignHCenter);
+  layout->addStretch();
+  layout->addWidget(credits, 0, Qt::AlignHCenter);
   layout->addStretch();
 
   setLayout(layout);
@@ -101,7 +139,7 @@ AppInfoPanel::AppInfoPanel(AppController& appController, QWidget* parent)
 void AppInfoPanel::versionInfoClicked()
 {
   const auto str =
-    tr("TrenchBroom %1 Build %2").arg(getBuildVersion()).arg(getBuildIdStr());
+    tr("TRENCH %1 Build %2").arg(getBuildVersion()).arg(getBuildIdStr());
 
   QApplication::clipboard()->setText(str);
 }

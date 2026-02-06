@@ -32,7 +32,11 @@ namespace tb::ui
 {
 
 ImageListBoxItemRenderer::ImageListBoxItemRenderer(
-  const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent)
+  const QString& title,
+  const QString& subtitle,
+  const QPixmap& image,
+  float fontScale,
+  QWidget* parent)
   : ControlListBoxItemRenderer{parent}
 {
   m_titleLabel = new ElidedLabel{title, Qt::ElideRight};
@@ -40,6 +44,17 @@ ImageListBoxItemRenderer::ImageListBoxItemRenderer(
 
   m_subtitleLabel = new ElidedLabel{subtitle, Qt::ElideMiddle};
   setInfoStyle(m_subtitleLabel);
+
+  if (fontScale != 1.0f)
+  {
+    auto font = m_titleLabel->font();
+    font.setPointSizeF(font.pointSizeF() * fontScale);
+    m_titleLabel->setFont(font);
+
+    auto sFont = m_subtitleLabel->font();
+    sFont.setPointSizeF(sFont.pointSizeF() * fontScale);
+    m_subtitleLabel->setFont(sFont);
+  }
 
   auto* imageAndTextLayout = new QHBoxLayout{};
   imageAndTextLayout->setContentsMargins(0, 0, 0, 0);
@@ -86,7 +101,13 @@ ControlListBoxItemRenderer* ImageListBox::createItemRenderer(
   QWidget* parent, const size_t index)
 {
   return new ImageListBoxItemRenderer{
-    title(index), subtitle(index), image(index), parent};
+    title(index), subtitle(index), image(index), m_fontScale, parent};
+}
+
+void ImageListBox::setFontScale(float scale)
+{
+  m_fontScale = scale;
+  reload();
 }
 
 QPixmap ImageListBox::image(const size_t /* index */) const

@@ -268,9 +268,9 @@ inline auto CameraFlyLeft =
 inline auto CameraFlyRight =
   Preference<QKeySequence>{"Controls/Camera/Move right", QKeySequence{'D'}};
 inline auto CameraFlyUp =
-  Preference<QKeySequence>{"Controls/Camera/Move up", QKeySequence{'Q'}};
+  Preference<QKeySequence>{"Controls/Camera/Move up", QKeySequence{'E'}};
 inline auto CameraFlyDown =
-  Preference<QKeySequence>{"Controls/Camera/Move down", QKeySequence{'X'}};
+  Preference<QKeySequence>{"Controls/Camera/Move down", QKeySequence{'Q'}};
 
 // Map view config
 inline auto ShowEntityClassnames =

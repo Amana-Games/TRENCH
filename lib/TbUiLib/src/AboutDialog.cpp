@@ -38,10 +38,17 @@ AboutDialog::AboutDialog(AppController& appController)
 
 void AboutDialog::createGui()
 {
-  const auto creditsString = tr(R"(
-github.com/TrenchBroom/TrenchBroom<br />
+const auto creditsString = tr(R"(
+TRENCH<br />
 <br />
-<b>Developers</b><br />
+Branch of TrenchBroom<br />
+<br />
+<b>Amana Games</b><br />
+<br />
+Gustavo 'Turk0w' Alessander<br />
+Rafael 'Atlas' Ueyama<br />
+<br />
+<b>Original TrenchBroom Developers</b><br />
 <br />
 Kristian Duske<br />
 Eric Wasylishen<br />

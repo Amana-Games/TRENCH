@@ -123,6 +123,21 @@ Result<void> loadGameEngineConfig(const fs::FileSystem& fs, GameInfo& gameInfo)
              [&](const auto&) { gameInfo.gameEngineConfigParseFailed = true; });
   }
 
+  // MISSION 12: Pre-configure Godot profiles for AINIMONIA if missing
+  if (gameInfo.gameConfig.name == "AINIMONIA" && gameInfo.gameEngineConfig.profiles.empty())
+  {
+    gameInfo.gameEngineConfig.profiles.push_back(GameEngineProfile{
+      "Launch Game",
+      std::filesystem::path{}, // User will set this in preferences or dialog
+      "--path \"${GAME_DIR_PATH}\""
+    });
+    gameInfo.gameEngineConfig.profiles.push_back(GameEngineProfile{
+      "Launch Editor",
+      std::filesystem::path{},
+      "--path \"${GAME_DIR_PATH}\" --editor"
+    });
+  }
+
   return Result<void>{};
 }
 
@@ -177,6 +192,11 @@ Result<std::vector<GameInfo>> loadGameInfos(
                  return loadGameInfo(fs, userGameDir, configFilePath, warnings);
                })
                | kdl::collect();
+
+             // [AMANA GAMES] Lock to "AINIMONIA" profile only
+             std::erase_if(gameInfos, [](const auto& info) {
+                 return info.gameConfig.name != "AINIMONIA";
+             });
 
              return std::move(gameInfos);
            });

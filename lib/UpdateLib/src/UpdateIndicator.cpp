@@ -101,7 +101,8 @@ void UpdateIndicator::updateUI(const UpdateControllerState& state)
       },
       [&](const UpdateDisabledState&) {
         setVisible(true);
-        setText(tr(R"(Updates disabled)"));
+        // [AMANA GAMES] Replace update status with branding.
+        setText(tr(" -- AMANA GAMES -- "));
       }),
     state);
 }
