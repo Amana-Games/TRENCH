@@ -213,7 +213,7 @@ endif()
 
 # Generate a small stripped PDB for release builds so we get stack traces with symbols
 if(COMPILER_IS_MSVC)
-    set_target_properties(TrenchBroom PROPERTIES LINK_FLAGS_RELEASE "/DEBUG /PDBSTRIPPED:app/TrenchBroom/TrenchBroom-stripped.pdb /PDBALTPATH:TrenchBroom-stripped.pdb")
+    set_target_properties(TrenchBroom PROPERTIES LINK_FLAGS_RELEASE "/DEBUG /PDBSTRIPPED:TRENCH-stripped.pdb /PDBALTPATH:TRENCH-stripped.pdb")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
@@ -300,11 +300,11 @@ if(WIN32)
     if(COMPILER_IS_MSVC)
         if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
             install(FILES
-                    "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom.pdb"
+                    "$<TARGET_FILE_DIR:TrenchBroom>/TRENCH.pdb" # Mudado para TRENCH
                     DESTINATION . COMPONENT TrenchBroom)
         elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
             install(FILES
-                    "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom-stripped.pdb"
+                    "$<TARGET_FILE_DIR:TrenchBroom>/TRENCH-stripped.pdb" # Mudado para TRENCH
                     DESTINATION . COMPONENT TrenchBroom)
         endif()
     endif()
