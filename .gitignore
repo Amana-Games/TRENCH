@@ -4,6 +4,7 @@ Thumbs.db
 .vscode
 .cache
 
+/out*
 /cmake-build-*
 /build*
 /cmakebuild*

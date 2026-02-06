@@ -75,7 +75,7 @@ AppInfoPanel::AppInfoPanel(AppController& appController, QWidget* parent)
   setHeaderStyle(greeting);
   greeting->setAlignment(Qt::AlignCenter);
 
-  auto* credits = new QLabel{tr("TRENCH - by Turk0w & Atlas")};
+  auto* credits = new QLabel{tr("TRENCH - by AMANA GAMES")};
   setInfoStyle(credits); // Using info style for a more discreet look
   auto creditsFont = credits->font();
   creditsFont.setBold(true);
