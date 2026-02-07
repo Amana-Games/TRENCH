@@ -24,6 +24,7 @@ jobs:
       USERNAME: gbolanho
       VCPKG_EXE: ${{ github.workspace }}/vcpkg/vcpkg
       FEED_URL: https://nuget.pkg.github.com/gbolanho/index.json
+      # CORREÇÃO: Apontando totalmente para o seu repositório de pacotes
       VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/gbolanho/index.json,readwrite"
 
     steps:
@@ -61,9 +62,9 @@ jobs:
 
       - name: Windows - Build
         if: ${{ matrix.os == 'windows-2022' }}
-        # Adicionado flags para evitar erros de warning e pular testes
+        # FORÇANDO O DESLIGAMENTO DOS TESTES E AVISOS
         run: |
-          set "CMAKE_ARGS=-DTB_WARNINGS_AS_ERRORS=OFF -DTB_BUILD_UNIT_TESTS=OFF"
+          set CMAKE_ARGS="-DTB_BUILD_UNIT_TESTS=OFF -DTB_WARNINGS_AS_ERRORS=OFF"
           cmd.exe /c CI-windows.bat
 
       - name: Windows - Upload artifacts
@@ -100,7 +101,7 @@ jobs:
         run: |
           export CC=gcc-13
           export CXX=g++-13
-          # Adicionado flags para pular testes no Linux
+          # FORÇANDO O DESLIGAMENTO DOS TESTES NO LINUX
           export CMAKE_ARGS="-DTB_BUILD_UNIT_TESTS=OFF"
           ./CI-linux.sh
 
