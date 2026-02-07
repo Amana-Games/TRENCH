@@ -822,13 +822,13 @@ void MapWindow::rebuildGARA()
     }
 
     QUdpSocket socket;
-    QByteArray data = ("rebuild" + cameraData).toUtf8();
+    QByteArray godotData = ("rebuild" + cameraData).toUtf8();
     
-    socket.writeDatagram(data, QHostAddress("127.0.0.1"), 7777); // Godot Editor
-    socket.writeDatagram(data, QHostAddress("127.0.0.1"), 7778); // Godot Game
+    socket.writeDatagram(godotData, QHostAddress("127.0.0.1"), 7777); // Godot Editor
+    socket.writeDatagram(godotData, QHostAddress("127.0.0.1"), 7778); // Godot Game
     
     // Log and Status feedback
-    logger().info() << "Map '" << mapName << "' sent to Godot (Ports 7777/7778). payload: " << data.constData();
+    logger().info() << "Map '" << mapName << "' sent to Godot (Ports 7777/7778). payload: " << godotData.constData();
     
     if (m_statusBarLabel)
     {
