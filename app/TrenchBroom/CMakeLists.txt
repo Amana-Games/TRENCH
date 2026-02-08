@@ -211,8 +211,13 @@ if(WIN32)
     endif()
 endif()
 
-# Generate a small stripped PDB for release builds so we get stack traces with symbols
+# 1. Configuração de Nomes e PDBs para MSVC
 if(COMPILER_IS_MSVC)
+    # Força o nome do PDB principal a ser TRENCH.pdb
+    set_target_properties(TrenchBroom PROPERTIES PDB_NAME "TRENCH")
+    
+    # Configura o Stripped PDB para Release
+    # Usamos caminhos sem subpastas para que o Ninja coloque o arquivo na raiz da pasta de build do app
     set_target_properties(TrenchBroom PROPERTIES LINK_FLAGS_RELEASE "/DEBUG /PDBSTRIPPED:TRENCH-stripped.pdb /PDBALTPATH:TRENCH-stripped.pdb")
 endif()
 
@@ -294,17 +299,18 @@ else()
     set(CPACK_STRIP_FILES FALSE)
 endif()
 
-# Platform specific CPack configuration
+# 3. Seção de Instalação de PDBs (Corrigida para bater com os nomes acima)
 if(WIN32)
-    # Copy PDB files (msvc debug symbols)
     if(COMPILER_IS_MSVC)
         if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+            # Agora garantimos que ele procure por TRENCH.pdb
             install(FILES
-                    "$<TARGET_FILE_DIR:TrenchBroom>/TRENCH.pdb" # Mudado para TRENCH
+                    "$<TARGET_FILE_DIR:TrenchBroom>/TRENCH.pdb"
                     DESTINATION . COMPONENT TrenchBroom)
         elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+            # Agora garantimos que ele procure por TRENCH-stripped.pdb exatamente onde ele é gerado
             install(FILES
-                    "$<TARGET_FILE_DIR:TrenchBroom>/TRENCH-stripped.pdb" # Mudado para TRENCH
+                    "$<TARGET_FILE_DIR:TrenchBroom>/TRENCH-stripped.pdb"
                     DESTINATION . COMPONENT TrenchBroom)
         endif()
     endif()
