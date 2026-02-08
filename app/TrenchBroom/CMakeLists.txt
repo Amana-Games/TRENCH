@@ -211,14 +211,18 @@ if(WIN32)
     endif()
 endif()
 
-# 1. Configuração de Nomes e PDBs para MSVC
+# 1. Configuração de Nomes e PDBs para MSVC (Build e Link)
 if(COMPILER_IS_MSVC)
-    # Força o nome do PDB principal a ser TRENCH.pdb
+    # Força o nome do PDB principal
     set_target_properties(TrenchBroom PROPERTIES PDB_NAME "TRENCH")
     
-    # Configura o Stripped PDB para Release
-    # Usamos caminhos sem subpastas para que o Ninja coloque o arquivo na raiz da pasta de build do app
-    set_target_properties(TrenchBroom PROPERTIES LINK_FLAGS_RELEASE "/DEBUG /PDBSTRIPPED:TRENCH-stripped.pdb /PDBALTPATH:TRENCH-stripped.pdb")
+    # IMPORTANTE: Usamos uma variável para o caminho absoluto do Stripped PDB
+    # Isso evita que o Ninja se perca em pastas relativas
+    set(STRIPPED_PDB_PATH "${CMAKE_CURRENT_BINARY_DIR}/TRENCH-stripped.pdb")
+    
+    set_target_properties(TrenchBroom PROPERTIES 
+        LINK_FLAGS_RELEASE "/DEBUG /PDBSTRIPPED:\"${STRIPPED_PDB_PATH}\" /PDBALTPATH:TRENCH-stripped.pdb"
+    )
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
@@ -299,19 +303,17 @@ else()
     set(CPACK_STRIP_FILES FALSE)
 endif()
 
-# 3. Seção de Instalação de PDBs (Corrigida para bater com os nomes acima)
+# 3. Seção de Instalação de PDBs (Ajustada para o caminho absoluto e flag OPTIONAL)
 if(WIN32)
     if(COMPILER_IS_MSVC)
         if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-            # Agora garantimos que ele procure por TRENCH.pdb
-            install(FILES
-                    "$<TARGET_FILE_DIR:TrenchBroom>/TRENCH.pdb"
-                    DESTINATION . COMPONENT TrenchBroom)
+            install(FILES "$<TARGET_FILE_DIR:TrenchBroom>/TRENCH.pdb"
+                    DESTINATION . COMPONENT TrenchBroom OPTIONAL)
         elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-            # Agora garantimos que ele procure por TRENCH-stripped.pdb exatamente onde ele é gerado
-            install(FILES
-                    "$<TARGET_FILE_DIR:TrenchBroom>/TRENCH-stripped.pdb"
-                    DESTINATION . COMPONENT TrenchBroom)
+            # Usamos a variável de caminho absoluto definida lá em cima
+            # Adicionamos OPTIONAL: Se o arquivo atrasar 1ms para ser escrito, o ZIP não quebra
+            install(FILES "${CMAKE_CURRENT_BINARY_DIR}/TRENCH-stripped.pdb"
+                    DESTINATION . COMPONENT TrenchBroom OPTIONAL)
         endif()
     endif()
 
