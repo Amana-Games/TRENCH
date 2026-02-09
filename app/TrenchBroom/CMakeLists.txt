@@ -225,13 +225,7 @@ if(COMPILER_IS_MSVC)
     )
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
-    # Make executable name conventional lowercase on linux
-    string(TOLOWER TrenchBroom APP_TARGET_NAME_LOWER)
-    set_target_properties(TrenchBroom PROPERTIES OUTPUT_NAME ${APP_TARGET_NAME_LOWER})
-else()
     set_target_properties(TrenchBroom PROPERTIES OUTPUT_NAME "TRENCH")
-endif()
 
 # Set up the resources and DLLs for the executable
 set(APP_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:TrenchBroom>")
@@ -382,7 +376,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(LINUX_TARGET_RESOURCE_DIRECTORY ${CPACK_PACKAGING_INSTALL_PREFIX}/${LINUX_RESOURCE_LOCATION})
 
     # add mime type definitions
-    install(FILES "${TB_RESOURCE_DIR}/linux/trenchbroom.xml" DESTINATION "share/mime/packages/" COMPONENT TrenchBroom)
+    install(FILES "${TB_RESOURCE_DIR}/linux/trench.xml" DESTINATION "share/mime/packages/" COMPONENT TrenchBroom)
 
     # configure install scripts
     configure_file(${TB_RESOURCE_DIR}/linux/postinst ${CMAKE_CURRENT_BINARY_DIR}/linux/postinst @ONLY)
@@ -405,6 +399,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     # configure AppImage via an external CPack generator
     set(CPACK_PACKAGE_FILE_EXT "zip")
     set(TB_LINUXDEPLOY_PATH "../linuxdeploy-x86_64.AppImage")
+    set(LINUXDEPLOY_DESKTOP_FILE "${TB_RESOURCE_DIR}/linux/trench.desktop")
     get_target_property(TB_QMAKE_PATH Qt6::qmake IMPORTED_LOCATION)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/AppImageGenerator.cmake.in" "${CMAKE_BINARY_DIR}/AppImageGenerator.cmake" @ONLY)
 

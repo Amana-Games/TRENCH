@@ -2,7 +2,7 @@ name: TRENCH CI
 on:
   push:
     tags:
-      - '**' # Dispara para qualquer tag (v1, 2026.2, etc)
+      - 'v*'
   #   branches:
   #     - master
   # pull_request:

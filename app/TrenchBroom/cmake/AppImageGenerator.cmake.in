@@ -1,19 +1,19 @@
 execute_process(
   COMMAND
     @CMAKE_COMMAND@ -E env
-      OUTPUT=TrenchBroom.AppImage
+      OUTPUT=TRENCH.AppImage
       QMAKE=@TB_QMAKE_PATH@
     @TB_LINUXDEPLOY_PATH@
     --appdir=${CPACK_TEMPORARY_DIRECTORY}
     --output=appimage
-    --desktop-file=@TB_RESOURCE_DIR@/linux/trenchbroom.desktop
+    --desktop-file=@LINUXDEPLOY_DESKTOP_FILE@
     --icon-file=@TB_RESOURCE_DIR@/graphics/images/AppIcon.png
-    --icon-filename=trenchbroom
+    --icon-filename=trench
     --plugin qt
   COMMAND_ERROR_IS_FATAL ANY
 )
 execute_process(
   COMMAND
-    @CMAKE_COMMAND@ -E tar cv @CPACK_PACKAGE_FILE_NAME@.@CPACK_PACKAGE_FILE_EXT@ --format=zip TrenchBroom.AppImage
+    @CMAKE_COMMAND@ -E tar cv @CPACK_PACKAGE_FILE_NAME@.@CPACK_PACKAGE_FILE_EXT@ --format=zip TRENCH.AppImage
   COMMAND_ERROR_IS_FATAL ANY
 )
