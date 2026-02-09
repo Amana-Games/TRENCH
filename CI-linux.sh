@@ -40,7 +40,7 @@ cmake --build . --config Release -- -j $(nproc) || exit 1
 cd "$(pwd)"
 
 # Check linked libraries
-ldd --verbose ./app/TrenchBroom/trench
+ldd --verbose ./app/TrenchBroom/TRENCH
 
 cpack || exit 1
 ./app/TrenchBroom/generate_checksum.sh
