@@ -33,11 +33,26 @@
 @SolidClass color(204 204 204) base(Phong, VertexMergeDistance, CullInteriorFaces) = func_illusionary : "Static geometry with no collision. Builds a Node3D with a MeshInstance3D and an Occluder3D to aid in render culling of other VisualInstance3D nodes." []
 @PointClass color(0 255 0) model({ "path": "textures/editor/akiko_player_start.png", "scale": 0.3 }) size(-16.0 -16.0 0.0, 16.0 16.0 72.0) = akiko_player_start : "Akiko will start here!" []
 
+@PointClass color(204 204 204) model("textures/editor/models/interaction_door_jolt.glb") size(-1.0 -32.0 0.0, 1.0 0.0 72.0) studio("textures/editor/models/interaction_door_jolt.glb") = interaction_door_jolt : "interaction_door_jolt" []
+
 @PointClass color(255 255 0) model({ "path": "textures/editor/point_light.png", "scale": 0.2 }) size(-8.0 -8.0 -8.0, 8.0 8.0 8.0) = light_omni : "OmniLight3D" 
 [
 	light_color(color255) : "" : "255 255 255"
 	light_energy(float) : "" : "1.0"
 	omni_range(float) : "" : "5.0"
+	shadow_enabled(choices) : "" : 1 = 
+	[
+		0 : "No"
+		1 : "Yes"
+	]
 ]
 
-@PointClass color(204 204 204) model({"path": "textures/editor/models/interaction_door_jolt.glb", "scale": 32.0 }) size(0.0 0.0 0.0, 0.0 1.0 2.0) studio("textures/editor/models/interaction_door_jolt.glb") = interaction_door_jolt : "interaction_door_jolt" []
+@SolidClass color(204 204 204) = interaction_talkable : "A brush that Akiko can talk with." 
+[
+	visible(choices) : "" : 0 = 
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	dialogue(string) : "" : ""
+]
